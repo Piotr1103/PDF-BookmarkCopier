@@ -19,6 +19,7 @@ So, it would be like this:
 Like operating a copy machine, now we have the book on the scanning glass, we have the paper loaded in the tray. And then, the key point: Press the start button to activate the copying sequence.
 
 To press the button, use the "setbooklines" function:
+
 	test.setbooklines()
 
 Finally, you'll a pdf file named "bookmarked.pdf" in the same directory where you put "main.py".
