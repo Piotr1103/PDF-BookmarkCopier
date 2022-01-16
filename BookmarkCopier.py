@@ -17,18 +17,12 @@ class BookmarkCopier:
 	def compare_pages(self):
 		if self.srcPages > self.dstPages:
 			self.copy_mode = 'deleted'
-			if self.offsets is None:
-				print("Some pages have been deleted in the destination!")
-				print("If you don't provide the deleted pages, may cause out of index error!")
 		elif self.srcPages < self.dstPages:
 			self.copy_mode = 'inserted'
-			if self.offsets is None:
-				print("Some pages have been inserted into the destination!")
-				print("Are you sure you don't want to offset the pages after the inserted ones?")
 		else:
 			self.copy_mode = 'equal'
 		
-		if abs(self.srcPages-self.dstPages)!=len(self.offsets):
+		if self.offsets != None and abs(self.srcPages-self.dstPages)!=len(self.offsets):
 			print("The length of offsets doesn't add up!")
 			print("Please check up the offset pages!")
 	
