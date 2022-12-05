@@ -14,6 +14,8 @@ if not offsets in ("N", "n"):
 		offtup = tuple([int(i) for i in offsets.split()])
 	except:
 		print("錯誤!請確定輸入是否正確。", offtup, type(offtup))
+else:
+	offtup = None
 
 test = BookmarkCopier(src, dst, offtup)
 
