@@ -1,12 +1,25 @@
 class BookmarkSetter:
-	def __init__(self,dst,destination,booklines,offsets):
+	def __init__(self,dst,destination,booklines,offsets,output_path):
+		# 目的檔案的PdfFileReader實例對象
 		self.dst = dst
+		# 預備寫入的空白PdfFileWriter實例對象
 		self.destination = destination
+		# 準備寫入之書籤列對象，來自BookmarkGetter的getbooklines成員方法
 		self.booklines = booklines
+		# 若有刪除PDF檔案頁數，則以元組方式傳入被刪除頁數的原頁碼
 		self.offsets = offsets
-		#預設朝狀書籤列最多五層，設置一空數組以儲存父節點
+		#用來將新的檔案放回到檔案所在路徑的字串
+		self.output_path = output_path
+		#預設巢狀書籤列最多五層，設置一空數組以儲存父節點，超過五層則不予理睬
 		self.par = [None,None,None,None,None]
+
+	"""
+	關於PDF檔案的各種公開參數可參考:
+	https://pdfobject.com/pdf/pdf_open_parameters_acro8.pdf
+	其中以"Parameters for Opening PDF Files"一章以下的"Parameters"部分所公告的內容為準
+	"""
 	
+	# 左方對齊座標參數
 	def defineLeft(self,tp,bookmark):
 		#對齊縮放方式為/XYZ且帶有對齊座標參數top和left
 		if tp=='/XYZ' and len(bookmark)==6:
@@ -20,6 +33,7 @@ class BookmarkSetter:
 		
 		return leftc
 	
+	# 上方座標對齊參數
 	def defineTop(self,tp,bookmark):
 		#對齊縮放方式為/XYZ且帶有對齊座標參數top和left
 		if tp=='/XYZ' and len(bookmark)==6:
@@ -33,6 +47,11 @@ class BookmarkSetter:
 		
 		return topc
 	
+	"""
+	此方法與方法內的PdfFileWriter().addbookmark無關，識自定義的方法
+	參數為 addbookmark(self, 頁面對齊縮放方式, 書籤標題, 頁碼, 層數, 左方對齊座標參數, 上方座標對齊參數)
+	而 PdfFileWriter().addBookmark(書籤標題, 頁碼, 父節點, 顏色, 粗體, 斜體, 頁面對齊縮放方式, 左方對齊座標參數, 上方座標對齊參數, 其他參數)
+	"""
 	def addBookmark(self,tp,ttl,page,lv,leftc,topc):
 		level = (None if lv==0 else self.par[lv-1])
 		#依照對齊座標參數決定寫入PDF的方式
@@ -44,10 +63,11 @@ class BookmarkSetter:
 			cur = self.destination.addBookmark(ttl,page,level,None,False,False,'/FitH',topc)
 		elif tp == '/FitV':
 			cur = self.destination.addBookmark(ttl,page,level,None,False,False,'/FitV',leftc)
-		#為避免尚未考慮的對齊格式出現的預設處理
 		else:
+			#為避免尚未考慮的對齊格式出現的預設處理
 			print('Undefined Type '+tp+"!")
-			cur = None
+			#倘若不是上述的對其格式參數，則一律設置為/Fit，左方對齊座標參數、上方座標對齊參數和其他參數則不設置
+			cur = self.destination.addBookmark(ttl,page,level,None,False,False,'/Fit',None,None,None)
 		
 		return cur
 		
@@ -96,7 +116,8 @@ class BookmarkSetter:
 			#將節點按階層加入數組，以儲存父節點
 			self.par[lv] = cur
 		
-		#新的PDF檔以bookmarked.pdf為名輸出
-		outputStream = open('bookmarked.pdf','wb')
+		#新的PDF檔以Bookmarked.pdf為名輸出，並輸出至目的檔案所在之目錄
+		output_path = '\\'.join(self.output_path.split('\\')[:-1:])
+		outputStream = open(output_path + '\\Bookmarked.pdf','wb')
 		self.destination.write(outputStream)
 		outputStream.close()
