@@ -11,7 +11,7 @@ class BookmarkCopier:
 		self.offsets = offsets
 		self.getter = BookmarkGetter(self.src)
 		self.booklines = self.getter.booklines
-		self.setter = BookmarkSetter(self.dst,PdfFileWriter(),self.booklines,self.offsets)
+		self.setter = BookmarkSetter(self.dst,PdfFileWriter(),self.booklines,self.offsets,dst)
 		self.compare_pages()
 	
 	def compare_pages(self):
